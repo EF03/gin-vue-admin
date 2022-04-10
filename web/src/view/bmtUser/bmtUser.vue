@@ -2,6 +2,9 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
+        <el-form-item label="羽球活动id">
+          <el-input v-model="searchInfo.bmtId" placeholder="搜索条件" />
+        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -9,60 +12,66 @@
       </el-form>
     </div>
     <div class="gva-table-box">
-        <div class="gva-btn-list">
-            <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
-            <el-popover v-model:visible="deleteVisible" placement="top" width="160">
-            <p>确定要删除吗？</p>
-            <div style="text-align: right; margin-top: 8px;">
-                <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
-                <el-button size="small" type="primary" @click="onDelete">确定</el-button>
-            </div>
-            <template #reference>
-                <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
-            </template>
-            </el-popover>
-        </div>
-        <el-table
+      <div class="gva-btn-list">
+        <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-popover v-model:visible="deleteVisible" placement="top" width="160">
+          <p>确定要删除吗？</p>
+          <div style="text-align: right; margin-top: 8px;">
+            <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
+            <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+          </div>
+          <template #reference>
+            <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
+          </template>
+        </el-popover>
+      </div>
+      <el-table
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
         :data="tableData"
         row-key="ID"
         @selection-change="handleSelectionChange"
-        >
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="羽球活动id" prop="bmtId" width="120" />
-        <el-table-column align="left" label="用户id" prop="uid" width="120" />
+        <el-table-column align="left" label="參加者" prop="uid" width="120">
+          <template #default="scope">
+            {{ filterDict(scope.row.uid,bmtUlOptions) }}
+          </template>
+        </el-table-column>
         <el-table-column align="left" label="参予小节次数" prop="times" width="120" />
         <el-table-column align="left" label="按钮组">
-            <template #default="scope">
+          <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateBmtUserFunc(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            </template>
+          </template>
         </el-table-column>
-        </el-table>
-        <div class="gva-pagination">
-            <el-pagination
-            layout="total, sizes, prev, pager, next, jumper"
-            :current-page="page"
-            :page-size="pageSize"
-            :page-sizes="[10, 30, 50, 100]"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
-            />
-        </div>
+      </el-table>
+      <div class="gva-pagination">
+        <el-pagination
+          layout="total, sizes, prev, pager, next, jumper"
+          :current-page="page"
+          :page-size="pageSize"
+          :page-sizes="[10, 30, 50, 100]"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
         <el-form-item label="羽球活动id:">
           <el-input v-model.number="formData.bmtId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="用户id:">
-          <el-input v-model.number="formData.uid" clearable placeholder="请输入" />
+        <el-form-item label="參加者:">
+          <el-select v-model="formData.uid" placeholder="请选择" style="width:100%" clearable>
+            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="参予小节次数:">
           <el-input v-model.number="formData.times" clearable placeholder="请输入" />
@@ -98,13 +107,15 @@ import {
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-
+import { useRoute } from 'vue-router'
+const route = useRoute()
 // 自动化生成的字典（可能为空）以及字段
+const bmtUlOptions = ref([])
 const formData = ref({
-        bmtId: 0,
-        uid: 0,
-        times: 0,
-        })
+  bmtId: parseInt(route.params.bmtId),
+  uid: undefined,
+  times: 0,
+})
 
 // =========== 表格控制部分 ===========
 const page = ref(1)
@@ -113,6 +124,7 @@ const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
 
+searchInfo.value = { bmtId: route.params.bmtId }
 // 重置
 const onReset = () => {
   searchInfo.value = {}
@@ -153,90 +165,88 @@ getTableData()
 // ============== 表格控制部分结束 ===============
 
 // 获取需要的字典 可能为空 按需保留
-const setOptions = async () =>{
+const setOptions = async() => {
+  bmtUlOptions.value = await getDictFunc('bmtUl')
 }
 
 // 获取需要的字典 可能为空 按需保留
 setOptions()
 
-
 // 多选数据
 const multipleSelection = ref([])
 // 多选
 const handleSelectionChange = (val) => {
-    multipleSelection.value = val
+  multipleSelection.value = val
 }
 
 // 删除行
 const deleteRow = (row) => {
-    ElMessageBox.confirm('确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    }).then(() => {
-            deleteBmtUserFunc(row)
-        })
-    }
-
+  ElMessageBox.confirm('确定要删除吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    deleteBmtUserFunc(row)
+  })
+}
 
 // 批量删除控制标记
 const deleteVisible = ref(false)
 
 // 多选删除
 const onDelete = async() => {
-      const ids = []
-      if (multipleSelection.value.length === 0) {
-        ElMessage({
-          type: 'warning',
-          message: '请选择要删除的数据'
-        })
-        return
-      }
-      multipleSelection.value &&
+  const ids = []
+  if (multipleSelection.value.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要删除的数据'
+    })
+    return
+  }
+  multipleSelection.value &&
         multipleSelection.value.map(item => {
           ids.push(item.ID)
         })
-      const res = await deleteBmtUserByIds({ ids })
-      if (res.code === 0) {
-        ElMessage({
-          type: 'success',
-          message: '删除成功'
-        })
-        if (tableData.value.length === ids.length && page.value > 1) {
-          page.value--
-        }
-        deleteVisible.value = false
-        getTableData()
-      }
+  const res = await deleteBmtUserByIds({ ids })
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功'
+    })
+    if (tableData.value.length === ids.length && page.value > 1) {
+      page.value--
     }
+    deleteVisible.value = false
+    getTableData()
+  }
+}
 
 // 行为控制标记（弹窗内部需要增还是改）
 const type = ref('')
 
 // 更新行
 const updateBmtUserFunc = async(row) => {
-    const res = await findBmtUser({ ID: row.ID })
-    type.value = 'update'
-    if (res.code === 0) {
-        formData.value = res.data.rebmtUser
-        dialogFormVisible.value = true
-    }
+  const res = await findBmtUser({ ID: row.ID })
+  type.value = 'update'
+  if (res.code === 0) {
+    formData.value = res.data.rebmtUser
+    dialogFormVisible.value = true
+  }
 }
 
-
 // 删除行
-const deleteBmtUserFunc = async (row) => {
-    const res = await deleteBmtUser({ ID: row.ID })
-    if (res.code === 0) {
-        ElMessage({
-                type: 'success',
-                message: '删除成功'
-            })
-            if (tableData.value.length === 1 && page.value > 1) {
-            page.value--
-        }
-        getTableData()
+const deleteBmtUserFunc = async(row) => {
+  const res = await deleteBmtUser({ ID: row.ID })
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功'
+    })
+    if (tableData.value.length === 1 && page.value > 1) {
+      page.value--
     }
+    getTableData()
+  }
 }
 
 // 弹窗控制标记
@@ -244,41 +254,41 @@ const dialogFormVisible = ref(false)
 
 // 打开弹窗
 const openDialog = () => {
-    type.value = 'create'
-    dialogFormVisible.value = true
+  type.value = 'create'
+  dialogFormVisible.value = true
 }
 
 // 关闭弹窗
 const closeDialog = () => {
-    dialogFormVisible.value = false
-    formData.value = {
-        bmtId: 0,
-        uid: 0,
-        times: 0,
-        }
+  dialogFormVisible.value = false
+  formData.value = {
+    bmtId: parseInt(route.params.bmtId),
+    uid: undefined,
+    times: 0,
+  }
 }
 // 弹窗确定
-const enterDialog = async () => {
-      let res
-      switch (type.value) {
-        case 'create':
-          res = await createBmtUser(formData.value)
-          break
-        case 'update':
-          res = await updateBmtUser(formData.value)
-          break
-        default:
-          res = await createBmtUser(formData.value)
-          break
-      }
-      if (res.code === 0) {
-        ElMessage({
-          type: 'success',
-          message: '创建/更改成功'
-        })
-        closeDialog()
-        getTableData()
-      }
+const enterDialog = async() => {
+  let res
+  switch (type.value) {
+    case 'create':
+      res = await createBmtUser(formData.value)
+      break
+    case 'update':
+      res = await updateBmtUser(formData.value)
+      break
+    default:
+      res = await createBmtUser(formData.value)
+      break
+  }
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '创建/更改成功'
+    })
+    closeDialog()
+    getTableData()
+  }
 }
 </script>
 

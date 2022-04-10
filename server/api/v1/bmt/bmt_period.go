@@ -36,6 +36,26 @@ func (bmtPeriodApi *BmtPeriodApi) CreateBmtPeriod(c *gin.Context) {
 	}
 }
 
+// DrawBmtPeriod 抽籤BmtPeriod
+// @Tags BmtPeriod
+// @Summary 抽籤BmtPeriod
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body bmt.BmtPeriod true "抽籤BmtPeriod"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /bmtPeriod/drawBmtPeriod [post]
+func (bmtPeriodApi *BmtPeriodApi) DrawBmtPeriod(c *gin.Context) {
+	var bmtPeriod bmt.BmtPeriod
+	_ = c.ShouldBindJSON(&bmtPeriod)
+	if err := bmtPeriodService.DrawBmtPeriod(bmtPeriod); err != nil {
+		global.GVA_LOG.Error("抽籤失败!", zap.Error(err))
+		response.FailWithMessage("抽籤失败", c)
+	} else {
+		response.OkWithMessage("抽籤成功", c)
+	}
+}
+
 // DeleteBmtPeriod 删除BmtPeriod
 // @Tags BmtPeriod
 // @Summary 删除BmtPeriod

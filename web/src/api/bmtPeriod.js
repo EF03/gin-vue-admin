@@ -16,6 +16,14 @@ export const createBmtPeriod = (data) => {
   })
 }
 
+export const drawBmtPeriod = (data) => {
+  return service({
+    url: '/bmtPeriod/drawBmtPeriod',
+    method: 'post',
+    data
+  })
+}
+
 // @Tags BmtPeriod
 // @Summary 删除BmtPeriod
 // @Security ApiKeyAuth

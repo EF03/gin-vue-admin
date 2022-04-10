@@ -6,16 +6,24 @@
           <el-input v-model.number="formData.bmtId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="红对队员1:">
-          <el-input v-model.number="formData.redUserId1" clearable placeholder="请输入" />
+          <el-select v-model="formData.redUserId1" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="红对队员2:">
-          <el-input v-model.number="formData.redUserId2" clearable placeholder="请输入" />
+          <el-select v-model="formData.redUserId2" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="蓝对队员1:">
-          <el-input v-model.number="formData.blueUserId1" clearable placeholder="请输入" />
+          <el-select v-model="formData.blueUserId1" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="蓝对队员2:">
-          <el-input v-model.number="formData.blueUserId2" clearable placeholder="请输入" />
+          <el-select v-model="formData.blueUserId2" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="红对分数:">
           <el-input v-model.number="formData.redScore" clearable placeholder="请输入" />
@@ -23,7 +31,7 @@
         <el-form-item label="藍隊分數:">
           <el-input v-model.number="formData.blueScore" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="胜负：1-红对,2-蓝队:">
+        <el-form-item label="胜负:">
           <el-select v-model="formData.winner" placeholder="请选择" clearable>
             <el-option v-for="(item,key) in winnerOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
@@ -58,13 +66,14 @@ import { ref } from 'vue'
 const route = useRoute()
 const router = useRouter()
 const type = ref('')
+const bmtUlOptions = ref([])
 const winnerOptions = ref([])
 const formData = ref({
         bmtId: 0,
-        redUserId1: 0,
-        redUserId2: 0,
-        blueUserId1: 0,
-        blueUserId2: 0,
+        redUserId1: undefined,
+        redUserId2: undefined,
+        blueUserId1: undefined,
+        blueUserId2: undefined,
         redScore: 0,
         blueScore: 0,
         winner: undefined,
@@ -82,6 +91,7 @@ const init = async () => {
     } else {
       type.value = 'create'
     }
+    bmtUlOptions.value = await getDictFunc('bmtUl')
     winnerOptions.value = await getDictFunc('winner')
 }
 

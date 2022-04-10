@@ -2,11 +2,11 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="羽球活动主键">
-          <el-input v-model="searchInfo.bmtId" placeholder="搜索条件" />
+        <el-form-item label="名称">
+          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="胜负">
-          <el-input v-model="searchInfo.winner" placeholder="搜索条件" />
+        <el-form-item label="备注">
+          <el-input v-model="searchInfo.remark" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -17,7 +17,6 @@
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
-        <el-button size="small" type="primary" icon="refresh" @click="draw">抽籤</el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
           <div style="text-align: right; margin-top: 8px;">
@@ -25,14 +24,7 @@
             <el-button size="small" type="primary" @click="onDelete">确定</el-button>
           </div>
           <template #reference>
-            <el-button
-              icon="delete"
-              size="small"
-              style="margin-left: 10px;"
-              :disabled="!multipleSelection.length"
-              @click="deleteVisible = true"
-            >删除
-            </el-button>
+            <el-button icon="delete" size="small" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
           </template>
         </el-popover>
       </div>
@@ -48,44 +40,11 @@
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="羽球活动主键" prop="bmtId" width="120" />
-        <el-table-column align="left" label="红对队员1" prop="redUserId1" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.redUserId1, bmtUlOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="红对队员2" prop="redUserId2" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.redUserId2, bmtUlOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="蓝对队员1" prop="blueUserId1" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.blueUserId1, bmtUlOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="蓝对队员2" prop="blueUserId2" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.blueUserId2, bmtUlOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="红对分数" prop="redScore" width="120" />
-        <el-table-column align="left" label="藍隊分數" prop="blueScore" width="120" />
-        <el-table-column align="left" label="胜负" prop="winner" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.winner, winnerOptions) }}
-          </template>
-        </el-table-column>
+        <el-table-column align="left" label="名称" prop="name" width="120" />
+        <el-table-column align="left" label="备注" prop="remark" width="120" />
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
-            <el-button
-              type="text"
-              icon="edit"
-              size="small"
-              class="table-button"
-              @click="updateBmtPeriodFunc(scope.row)"
-            >变更
-            </el-button>
+            <el-button type="text" icon="edit" size="small" class="table-button" @click="updateBmtUlFunc(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -104,39 +63,11 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="羽球活动主键:">
-          <el-input v-model.number="formData.bmtId" clearable placeholder="请输入" />
+        <el-form-item label="名称:">
+          <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="红对队员1:">
-          <el-select v-model="formData.redUserId1" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="红对队员2:">
-          <el-select v-model="formData.redUserId2" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="蓝对队员1:">
-          <el-select v-model="formData.blueUserId1" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="蓝对队员2:">
-          <el-select v-model="formData.blueUserId2" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in bmtUlOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="红对分数:">
-          <el-input v-model.number="formData.redScore" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="藍隊分數:">
-          <el-input v-model.number="formData.blueScore" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="胜负:">
-          <el-select v-model="formData.winner" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in winnerOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
+        <el-form-item label="备注:">
+          <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -151,48 +82,38 @@
 
 <script>
 export default {
-  name: 'BmtPeriod'
+  name: 'BmtUl'
 }
 </script>
 
 <script setup>
 import {
-  createBmtPeriod,
-  deleteBmtPeriod,
-  deleteBmtPeriodByIds,
-  updateBmtPeriod,
-  findBmtPeriod,
-  getBmtPeriodList, drawBmtPeriod
-} from '@/api/bmtPeriod'
+  createBmtUl,
+  deleteBmtUl,
+  deleteBmtUlByIds,
+  updateBmtUl,
+  findBmtUl,
+  getBmtUlList
+} from '@/api/bmtUl'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 // 自动化生成的字典（可能为空）以及字段
-const bmtUlOptions = ref([])
-const winnerOptions = ref([])
 const formData = ref({
-  bmtId: 0,
-  redUserId1: undefined,
-  redUserId2: undefined,
-  blueUserId1: undefined,
-  blueUserId2: undefined,
-  redScore: 0,
-  blueScore: 0,
-  winner: undefined,
+  name: '',
+  remark: '',
 })
 
 // =========== 表格控制部分 ===========
 const page = ref(1)
 const total = ref(0)
-const pageSize = ref(100)
+const pageSize = ref(10)
 const tableData = ref([])
 const searchInfo = ref({})
-const route = useRoute()
-searchInfo.value = { bmtId: route.params.bmtId }
+
 // 重置
 const onReset = () => {
   searchInfo.value = {}
@@ -219,7 +140,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async() => {
-  const table = await getBmtPeriodList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getBmtUlList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -234,8 +155,6 @@ getTableData()
 
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async() => {
-  bmtUlOptions.value = await getDictFunc('bmtUl')
-  winnerOptions.value = await getDictFunc('winner')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -255,7 +174,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteBmtPeriodFunc(row)
+    deleteBmtUlFunc(row)
   })
 }
 
@@ -273,10 +192,10 @@ const onDelete = async() => {
     return
   }
   multipleSelection.value &&
-  multipleSelection.value.map(item => {
-    ids.push(item.ID)
-  })
-  const res = await deleteBmtPeriodByIds({ ids })
+        multipleSelection.value.map(item => {
+          ids.push(item.ID)
+        })
+  const res = await deleteBmtUlByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -294,18 +213,18 @@ const onDelete = async() => {
 const type = ref('')
 
 // 更新行
-const updateBmtPeriodFunc = async(row) => {
-  const res = await findBmtPeriod({ ID: row.ID })
+const updateBmtUlFunc = async(row) => {
+  const res = await findBmtUl({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.rebmtPeriod
+    formData.value = res.data.rebmtUl
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteBmtPeriodFunc = async(row) => {
-  const res = await deleteBmtPeriod({ ID: row.ID })
+const deleteBmtUlFunc = async(row) => {
+  const res = await deleteBmtUl({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -326,27 +245,13 @@ const openDialog = () => {
   type.value = 'create'
   dialogFormVisible.value = true
 }
-// 抽籤
-const draw = () => {
-  drawBmtPeriod({ bmtId: parseInt(route.params.bmtId) }).then(
-    () => {
-      getTableData()
-    }
-  )
-}
 
 // 关闭弹窗
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    bmtId: 0,
-    redUserId1: undefined,
-    redUserId2: undefined,
-    blueUserId1: undefined,
-    blueUserId2: undefined,
-    redScore: 0,
-    blueScore: 0,
-    winner: undefined,
+    name: '',
+    remark: '',
   }
 }
 // 弹窗确定
@@ -354,13 +259,13 @@ const enterDialog = async() => {
   let res
   switch (type.value) {
     case 'create':
-      res = await createBmtPeriod(formData.value)
+      res = await createBmtUl(formData.value)
       break
     case 'update':
-      res = await updateBmtPeriod(formData.value)
+      res = await updateBmtUl(formData.value)
       break
     default:
-      res = await createBmtPeriod(formData.value)
+      res = await createBmtUl(formData.value)
       break
   }
   if (res.code === 0) {

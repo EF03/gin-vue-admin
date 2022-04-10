@@ -54,6 +54,9 @@ func (bmtUserService *BmtUserService) GetBmtUserInfoList(info bmtReq.BmtUserSear
 	db := global.GVA_DB.Model(&bmt.BmtUser{})
 	var bmtUsers []bmt.BmtUser
 	// 如果有条件搜索 下方会自动创建搜索语句
+	if info.BmtId != nil {
+		db = db.Where("bmt_id = ?", info.BmtId)
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return

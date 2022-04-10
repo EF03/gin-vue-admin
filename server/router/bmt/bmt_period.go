@@ -16,6 +16,7 @@ func (s *BmtPeriodRouter) InitBmtPeriodRouter(Router *gin.RouterGroup) {
 	var bmtPeriodApi = v1.ApiGroupApp.BmtApiGroup.BmtPeriodApi
 	{
 		bmtPeriodRouter.POST("createBmtPeriod", bmtPeriodApi.CreateBmtPeriod)             // 新建BmtPeriod
+		bmtPeriodRouter.POST("drawBmtPeriod", bmtPeriodApi.DrawBmtPeriod)                 // 抽籤BmtPeriod
 		bmtPeriodRouter.DELETE("deleteBmtPeriod", bmtPeriodApi.DeleteBmtPeriod)           // 删除BmtPeriod
 		bmtPeriodRouter.DELETE("deleteBmtPeriodByIds", bmtPeriodApi.DeleteBmtPeriodByIds) // 批量删除BmtPeriod
 		bmtPeriodRouter.PUT("updateBmtPeriod", bmtPeriodApi.UpdateBmtPeriod)              // 更新BmtPeriod
