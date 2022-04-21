@@ -8,7 +8,7 @@ docker-compose -f docker-compose-dev.yaml  up  -d
 docker-compose -f docker-compose-dev.yaml  stop
 
 
-docker-compose -f docker-compose-dev.yaml mysql redis
+docker-compose -f docker-compose-dev.yaml up -d mysql redis
 
 
 # 使用docker-compose启动四个容器
@@ -21,3 +21,5 @@ docker-compose up -d
 docker-compose up --build -d
 # 服务都启动成功后,使用此命令行可清除none镜像
 docker system prune
+
+docker-compose rm server web

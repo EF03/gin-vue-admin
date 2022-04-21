@@ -18,6 +18,12 @@ create table bmt_activity
 create index idx_bmt_activity_deleted_at
     on bmt_activity (deleted_at);
 
+
+alter table bmt_period
+    add hash1 varchar(250) null comment '雜湊1';
+alter table bmt_period
+    add hash2 varchar(250) null comment '雜湊2';
+
 -- auto-generated definition
 create table bmt_period
 (
@@ -33,7 +39,9 @@ create table bmt_period
     blue_user_id2 smallint    null comment '蓝对队员2',
     red_score     smallint    null comment '红对分数',
     blue_score    smallint    null comment '藍隊分數',
-    winner        tinyint     null comment '胜负：1-红对,2-蓝队'
+    winner        tinyint     null comment '胜负：1-红对,2-蓝队',
+    hash1         varchar(250) null comment '雜湊1',
+    hash2         varchar(250) null comment '雜湊2'
 );
 
 create index idx_bmt_period_deleted_at
